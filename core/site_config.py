@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 APP_NAME = "dsh-pet 下载器"
-VERSION = "1.0.7.0"
+VERSION = "1.0.8.0"
 
 # 支持「便携数据根」（数据跟随安装目录）的最低 dsh-pet 版本。
 MIN_PORTABLE_DATA_VERSION = (1, 0, 7, 0)
