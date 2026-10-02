@@ -1,0 +1,10 @@
+# 构建产物与本地缓存（不入库）
+__pycache__/
+*.py[cod]
+.pytest_cache/
+dist/
+build/
+dist-onedir/
+build-onedir/
+dist-offline/
+payload/

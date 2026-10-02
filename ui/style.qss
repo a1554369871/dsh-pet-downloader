@@ -1,0 +1,178 @@
+/* dsh-pet 下载器 · 浅色现代蓝 */
+
+QMainWindow, QWidget#wizardRoot {
+    background: #f4f7fc;
+}
+
+QWidget {
+    font-family: "Microsoft YaHei UI", "Segoe UI", "PingFang SC", sans-serif;
+    font-size: 13px;
+    color: #1f2937;
+}
+
+QLabel#appTitle {
+    font-size: 20px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+QLabel#appSubtitle {
+    color: #64748b;
+}
+
+QLabel#versionLabel {
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+QLabel#step {
+    padding: 5px 14px;
+    border-radius: 14px;
+    background: #e2e8f0;
+    color: #64748b;
+    font-weight: 600;
+}
+
+QLabel#step[state="active"] {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+QLabel#step[state="done"] {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+QLabel#pageTitle {
+    font-size: 17px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+QLabel#pageHint {
+    color: #64748b;
+}
+
+QLabel#fieldHint, QLabel.muted {
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+QLabel#welcomeTitle {
+    font-size: 24px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+QFrame#card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+}
+
+QPushButton {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 8px 18px;
+    color: #334155;
+}
+
+QPushButton:hover {
+    background: #f1f5f9;
+}
+
+QPushButton:disabled {
+    color: #94a3b8;
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+}
+
+QPushButton#primary {
+    background: #2563eb;
+    border: 1px solid #2563eb;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+QPushButton#primary:hover {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+}
+
+QPushButton#primary:disabled {
+    background: #93c5fd;
+    border-color: #93c5fd;
+    color: #ffffff;
+}
+
+QPushButton#link {
+    background: transparent;
+    border: none;
+    color: #2563eb;
+    padding: 2px 4px;
+}
+
+QPushButton#link:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+}
+
+QLineEdit, QComboBox {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 7px 10px;
+    selection-background-color: #bfdbfe;
+}
+
+QLineEdit:focus, QComboBox:focus {
+    border: 1px solid #2563eb;
+}
+
+QComboBox::drop-down {
+    border: none;
+    width: 22px;
+}
+
+QGroupBox {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    margin-top: 14px;
+    padding: 14px 14px 10px 14px;
+    font-weight: 600;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 14px;
+    padding: 0 6px;
+    color: #2563eb;
+}
+
+QRadioButton, QCheckBox {
+    spacing: 8px;
+    padding: 3px 0;
+}
+
+QProgressBar {
+    border: 1px solid #dbeafe;
+    border-radius: 8px;
+    background: #eff6ff;
+    height: 16px;
+    text-align: center;
+    color: #1e3a8a;
+}
+
+QProgressBar::chunk {
+    background: #2563eb;
+    border-radius: 7px;
+}
+
+QPlainTextEdit {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    color: #475569;
+}
