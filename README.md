@@ -95,6 +95,12 @@ downloader/
 └─ build.ps1 / build_offline.ps1 / *.spec
 ```
 
+## 排障
+
+- **在线安装报 `CERTIFICATE_VERIFY_FAILED`**：网络代理 / 加速器（如 Watt Toolkit）或安全软件拦截了 TLS 证书。关闭加速器/代理后重试，或直接使用**离线完整版**。
+- **在线安装报 `HTTP 403/404`**：在线源仓库（dsh-pet）当前未公开或无权访问。请使用**离线完整版**（公开仓库发布、匿名可下）。
+- **离线模式**：只要 exe 同目录存在 `payload/`（含两个 setup.exe 与 `manifest.json`），即完全离线安装，不访问任何下载路径；启动时也不会联网。
+
 ## 版本同步
 
 发新版 dsh-pet 时：更新 `core/site_config.py` 的 `VERSION` / `RELEASE_BASE` / `MIN_PORTABLE_DATA_VERSION`，重建两个产物；离线包需用对应版本的两个 setup.exe 重新构建并上传 Releases。

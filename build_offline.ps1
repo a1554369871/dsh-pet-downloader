@@ -1,13 +1,12 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 <#
 .SYNOPSIS
-    构建「离线自包含」下载器：onedir 程序 + payload（两个 setup.exe）+ manifest，打包成 zip。
+    Build the offline self-contained downloader: onedir app + payload (two setup.exe) + manifest -> zip.
 .DESCRIPTION
-    产物：dist-offline\dsh-pet-downloader-offline.zip
-    用户解压后直接运行 dsh-pet-downloader.exe，即可完全离线安装 dsh-pet。
+    Output: dist-offline\dsh-pet-downloader-offline.zip
+    Unzip and run dsh-pet-downloader.exe for a fully offline dsh-pet install.
 .EXAMPLE
     powershell -ExecutionPolicy Bypass -File build_offline.ps1
-    # 指定其它 dsh-pet 产物目录（例如从 CI 下载）：
     powershell -ExecutionPolicy Bypass -File build_offline.ps1 -PayloadDir D:\dsh-pet-dist
 #>
 param(
@@ -26,19 +25,19 @@ if (-not $PayloadDir) {
     $PayloadDir = Join-Path $root '..\dsh-pet\dist-onedir'
 }
 
-# 1) onedir 构建
+# 1) onedir build
 if (-not $SkipBuild) {
     Write-Host "[1/4] PyInstaller onedir ..." -ForegroundColor Cyan
-    python -m PyInstaller --noconfirm --clean --onedir `
+    python -m PyInstaller --noconfirm --clean `
         --distpath dist-onedir --workpath build-onedir downloader-onedir.spec
     if ($LASTEXITCODE -ne 0) { throw "PyInstaller failed: $LASTEXITCODE" }
 }
 
 $appDir = Join-Path $root 'dist-onedir\dsh-pet-downloader'
-if (-not (Test-Path $appDir)) { throw "缺少 onedir 产物：$appDir" }
+if (-not (Test-Path $appDir)) { throw "onedir output missing: $appDir" }
 
-# 2) 复制 payload
-Write-Host "[2/4] 组装 payload ..." -ForegroundColor Cyan
+# 2) assemble payload
+Write-Host "[2/4] Assembling payload ..." -ForegroundColor Cyan
 $payloadOut = Join-Path $appDir 'payload'
 if (Test-Path $payloadOut) { Remove-Item -Recurse -Force $payloadOut }
 New-Item -ItemType Directory -Force -Path $payloadOut | Out-Null
@@ -48,20 +47,22 @@ $plainName = 'dsh-pet-standalone-webm-setup.exe'
 $chatSrc = Join-Path $PayloadDir $chatName
 $plainSrc = Join-Path $PayloadDir $plainName
 foreach ($src in @($chatSrc, $plainSrc)) {
-    if (-not (Test-Path $src)) { throw "缺少安装包：$src（用 -PayloadDir 指定目录）" }
+    if (-not (Test-Path $src)) { throw "setup missing: $src (use -PayloadDir)" }
     Copy-Item $src $payloadOut -Force
 }
 
-# 3) 版本 + manifest（无 BOM UTF-8）
+# 3) version + manifest (UTF-8 no BOM)
 $version = (Get-Item $chatSrc).VersionInfo.ProductVersion
-if (-not $version) {
+if ($null -ne $version) { $version = ("$version").Trim() }
+if ([string]::IsNullOrWhiteSpace($version)) {
     $initPy = Join-Path $root '..\dsh-pet\pet\__init__.py'
     if (Test-Path $initPy) {
-        $m = Select-String -Path $initPy -Pattern "__version__\s*=\s*'([^']+)'" | Select-Object -First 1
-        if ($m) { $version = $m.Matches[0].Groups[1].Value }
+        foreach ($line in Get-Content $initPy) {
+            if ($line -match "__version__\s*=\s*'([^']+)'") { $version = $Matches[1]; break }
+        }
     }
 }
-if (-not $version) { $version = '0.0.0' }
+if ([string]::IsNullOrWhiteSpace($version)) { $version = '0.0.0' }
 
 function New-Entry([string]$name) {
     $p = Join-Path $payloadOut $name
@@ -85,8 +86,8 @@ $manifestPath = Join-Path $payloadOut 'manifest.json'
 [System.IO.File]::WriteAllText($manifestPath, $json, [System.Text.UTF8Encoding]::new($false))
 Write-Host "      manifest: v$version" -ForegroundColor Green
 
-# 4) 打包 zip（优先 tar/bsdtar，回退 Compress-Archive）
-Write-Host "[4/4] 打包离线 zip ..." -ForegroundColor Cyan
+# 4) pack zip (tar/bsdtar preferred, fallback Compress-Archive)
+Write-Host "[4/4] Packing offline zip ..." -ForegroundColor Cyan
 $outDir = Join-Path $root 'dist-offline'
 New-Item -ItemType Directory -Force -Path $outDir | Out-Null
 $zip = Join-Path $outDir 'dsh-pet-downloader-offline.zip'
@@ -94,11 +95,12 @@ if (Test-Path $zip) { Remove-Item $zip -Force }
 
 $tar = Get-Command tar.exe -ErrorAction SilentlyContinue
 if ($tar) {
-    & $tar.Source -a -c -f $zip -C $appDir .
+    $items = Get-ChildItem $appDir -Force | ForEach-Object { $_.Name }
+    & $tar.Source -a -c -f $zip -C $appDir $items
 } else {
     Compress-Archive -Path "$appDir\*" -DestinationPath $zip -CompressionLevel Optimal
 }
-if ($LASTEXITCODE -ne 0) { throw "打包失败: $LASTEXITCODE" }
+if ($LASTEXITCODE -ne 0) { throw "pack failed: $LASTEXITCODE" }
 
 $mb = [math]::Round((Get-Item $zip).Length / 1MB, 1)
 Write-Host "Done: $zip ($mb MB)" -ForegroundColor Green

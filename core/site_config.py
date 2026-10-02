@@ -24,6 +24,14 @@ WEBSITE_GUIDE = "https://a1554369871.github.io/website/guide.html"
 WEBSITE_HOME = "https://a1554369871.github.io/website/"
 WEBSITE_DOWNLOAD = "https://a1554369871.github.io/website/download.html"
 
+# 公开渠道：dsh-pet-downloader 仓库（匿名可访问），离线自包含包在此发布。
+# 注意：dsh-pet 主仓库当前未公开，匿名在线安装会 403/404，故失败时引导到这里。
+DOWNLOADER_REPO = "https://github.com/a1554369871/dsh-pet-downloader"
+OFFLINE_RELEASES_PAGE = f"{DOWNLOADER_REPO}/releases"
+OFFLINE_DOWNLOAD_URL = (
+    f"{DOWNLOADER_REPO}/releases/latest/download/dsh-pet-downloader-offline.zip"
+)
+
 # 内嵌资产（与 update.json 的 assets 键一致）。
 ASSETS = {
     "winChatSetup": "dsh-pet-standalone-webm-chat-setup.exe",

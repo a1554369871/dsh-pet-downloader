@@ -27,7 +27,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from core import ai_presets, api_config, drives, payload, releases, site_config
+from core import ai_presets, api_config, drives, errors, payload, releases, site_config
 from core import source as source_mod
 from core.task import InstallTask
 
@@ -177,6 +177,20 @@ class MainWindow(QMainWindow):
         tip.setObjectName("fieldHint")
         tip.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(tip)
+        if not self.offline_variants:
+            notice = QLabel(
+                "注意：本程序未内置安装包，将走在线下载；在线源需要访问 dsh-pet 仓库"
+                "（当前未公开）。如果下载失败，请改用「离线完整版」。"
+            )
+            notice.setObjectName("pageHint")
+            notice.setWordWrap(True)
+            notice.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            layout.addWidget(notice)
+            offline_row = QHBoxLayout()
+            offline_row.addStretch(1)
+            offline_row.addWidget(self._link_button("下载离线完整版", site_config.OFFLINE_DOWNLOAD_URL))
+            offline_row.addStretch(1)
+            layout.addLayout(offline_row)
         layout.addStretch(2)
         self.stack.addWidget(page)
 
@@ -244,7 +258,10 @@ class MainWindow(QMainWindow):
         else:
             self.rb_zip.setEnabled(True)
             self.rb_setup.setEnabled(True)
-            self.method_note.setText("未检测到内置安装包，将从在线下载源下载安装。")
+            self.method_note.setText(
+                "未检测到内置安装包，将从在线源下载（在线源需可访问 dsh-pet 仓库）。"
+                "若失败，请改用「离线完整版」。"
+            )
             self.source_edit.setEnabled(True)
 
     def _build_location(self) -> None:
@@ -565,6 +582,8 @@ class MainWindow(QMainWindow):
 
     # -- manifest ------------------------------------------------------
     def _fetch_manifest(self) -> None:
+        if self.offline_variants:
+            return  # 离线模式无需联网
         self._fetcher = ManifestFetcher(self)
         self._fetcher.fetched.connect(self._on_manifest)
         self._fetcher.start()
@@ -668,7 +687,18 @@ class MainWindow(QMainWindow):
         self.progress.setRange(0, 100)
         self.status_label.setText(f"失败：{message}")
         self._append_log(f"[错误] {message}")
-        QMessageBox.critical(self, "安装失败", message)
+        hint = errors.classify_error(message)[1]
+        box = QMessageBox(self)
+        box.setIcon(QMessageBox.Icon.Warning)
+        box.setWindowTitle("安装失败")
+        box.setText("安装未能完成。")
+        box.setInformativeText(f"{hint}\n\n错误详情：{message}")
+        offline_btn = box.addButton("打开离线完整版", QMessageBox.ButtonRole.ActionRole)
+        box.addButton("重试", QMessageBox.ButtonRole.AcceptRole)
+        box.addButton("关闭", QMessageBox.ButtonRole.RejectRole)
+        box.exec()
+        if box.clickedButton() is offline_btn:
+            QDesktopServices.openUrl(QUrl(site_config.OFFLINE_DOWNLOAD_URL))
 
     def _on_task_finished(self) -> None:
         self._task = None
